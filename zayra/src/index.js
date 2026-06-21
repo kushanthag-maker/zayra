@@ -6,7 +6,7 @@ export class Zayra {
     constructor() {
         this.client = new Client({
             authStrategy: new LocalAuth(),
-            // 3GB RAM සහ අඩු Specs වල සුපිරි වේගයකින් run වෙන්න Puppeteer උපරිමයෙන්ම Optimize කර ඇත
+            // 3GB RAM සහ අඩු Specs වල උපරිම වේගයෙන් run වෙන්න Puppeteer Optimize කර ඇත
             puppeteer: {
                 handleSIGINT: false,
                 headless: true,
@@ -49,10 +49,9 @@ export class Zayra {
             callback(msg, reply);
         });
 
-        // Status/Story View Support (Auto-Read & Download)
+        // Status/Story View Support (Auto-Read)
         this.client.on('message', async (msg) => {
             if (msg.from === 'status@broadcast') {
-                // Status එකක් ආපු ගමන්ම ඒක auto-read (viewed) කරනවා
                 await msg.downloadMedia(); // Status Download කිරීමටද සූදානම්
                 console.log(`👁️ Auto-viewed status from: ${msg.author}`);
             }
@@ -77,12 +76,32 @@ export class Zayra {
         }
     }
 
-    // 2. BUTTON SUPPORT FEATURE (Interactive Buttons)
+    // 🎥 2. VIDEO NOTE SENDER FEATURE (Circle Video Messages)
+    async sendVideoNote(to, filePathOrUrl) {
+        try {
+            const formattedTo = to.includes('@c.us') ? to : to.includes('@g.us') ? to : `${to}@c.us`;
+            let media;
+            
+            if (filePathOrUrl.startsWith('http://') || filePathOrUrl.startsWith('https://')) {
+                media = await MessageMedia.fromUrl(filePathOrUrl, { unsafeMime: true });
+            } else {
+                media = MessageMedia.fromFilePath(filePathOrUrl);
+            }
+
+            // WhatsApp එකට වීඩියෝ නෝට් එකක් විදිහට හඳුන්වා දීමට sendVideoNote: true දමයි
+            return await this.client.sendMessage(formattedTo, media, { 
+                sendVideoNote: true 
+            });
+        } catch (error) {
+            console.error('Zayra Video Note Sender Error:', error);
+        }
+    }
+
+    // 🔘 3. BUTTON SUPPORT FEATURE (Interactive Buttons)
     async sendButtons(to, text, buttonArray, title = '', footer = '') {
         try {
             const formattedTo = to.includes('@c.us') ? to : to.includes('@g.us') ? to : `${to}@c.us`;
             
-            // buttonArray = [{id: 'id1', body: 'Button 1'}, {id: 'id2', body: 'Button 2'}]
             const formattedButtons = buttonArray.map(btn => ({
                 buttonId: btn.id,
                 buttonText: { displayText: btn.body },
@@ -96,8 +115,7 @@ export class Zayra {
         }
     }
 
-    // 3. GROUP MANAGEMENT FEATURES
-    // Group එකකට කෙනෙක්ව Add කිරීම
+    // 👥 4. GROUP MANAGEMENT FEATURES
     async groupAdd(groupId, participantIds) {
         try {
             const group = await this.client.getChatById(groupId);
@@ -109,7 +127,6 @@ export class Zayra {
         }
     }
 
-    // Group එකෙන් කෙනෙක්ව Kick කිරීම
     async groupKick(groupId, participantIds) {
         try {
             const group = await this.client.getChatById(groupId);
@@ -121,7 +138,6 @@ export class Zayra {
         }
     }
 
-    // Group Invite Link එක ලබා ගැනීම
     async groupInviteLink(groupId) {
         try {
             const group = await this.client.getChatById(groupId);
