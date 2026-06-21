@@ -1,0 +1,23 @@
+{
+  "name": "zayra",
+  "version": "1.0.0",
+  "description": "A simple and lightweight WhatsApp automation library",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node examples/demo.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "zayra",
+    "whatsapp-bot",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "whatsapp-web.js": "^1.26.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
